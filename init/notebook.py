@@ -129,9 +129,7 @@ def scaffold_jupyter(root: Path, kernel_name: str) -> None:
 
     notebooks = root / "notebooks"
     notebooks.mkdir()
-    (notebooks / "scratch.ipynb").write_text(
-        JUPYTER_STARTER.format(kernel_name=kernel_name)
-    )
+    (notebooks / "scratch.ipynb").write_text(JUPYTER_STARTER.format(kernel_name=kernel_name))
     console.print("  [green]✓[/] notebooks/scratch.ipynb")
 
 
@@ -167,18 +165,12 @@ def main(
     flavor: Flavor = typer.Option(Flavor.jupyter, "--flavor", help="jupyter or marimo"),
     description: str = typer.Option("", "--desc", help="Short project description"),
     private: bool = typer.Option(True, help="Create GitHub repo as private"),
-    no_github: bool = typer.Option(
-        False, "--no-github", help="Skip GitHub repo creation"
-    ),
-    no_launch: bool = typer.Option(
-        False, "--no-launch", help="Skip launching the notebook server"
-    ),
+    no_github: bool = typer.Option(False, "--no-github", help="Skip GitHub repo creation"),
+    no_launch: bool = typer.Option(False, "--no-launch", help="Skip launching the notebook server"),
 ) -> None:
     root = Path(name).resolve()
     if root.exists():
-        ok = questionary.confirm(
-            f"'{name}' already exists. Continue?", default=False
-        ).ask()
+        ok = questionary.confirm(f"'{name}' already exists. Continue?", default=False).ask()
         if not ok:
             die("aborted")
     else:
@@ -232,10 +224,7 @@ def main(
 
     console.print(
         Panel(
-            f"[bold green]done.[/]\n\n"
-            f"  [dim]cd[/] {name}\n"
-            f"  [bold]{launch_hint}[/]"
-            f"{kernel_line}",
+            f"[bold green]done.[/]\n\n  [dim]cd[/] {name}\n  [bold]{launch_hint}[/]{kernel_line}",
             title="next steps",
             expand=False,
         )

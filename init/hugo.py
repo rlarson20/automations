@@ -41,9 +41,7 @@ def write(path: Path, content: str, tree: Tree | None = None) -> None:
         tree.add(f"[green]{path}[/]")
 
 
-def scaffold(
-    root: Path, site_title: str, base_url: str, author: str, tree: Tree
-) -> None:
+def scaffold(root: Path, site_title: str, base_url: str, author: str, tree: Tree) -> None:
     write(
         root / "layouts/_default/baseof.html",
         f"""\
@@ -187,9 +185,7 @@ def main() -> None:
 
     root = Path(site_name)
     if root.exists():
-        ok = questionary.confirm(
-            f"'{root}' already exists. Continue anyway?", default=False
-        ).ask()
+        ok = questionary.confirm(f"'{root}' already exists. Continue anyway?", default=False).ask()
         if not ok:
             die("aborted")
     else:

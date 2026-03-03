@@ -21,6 +21,8 @@ Usage:
 
 from __future__ import annotations
 
+from typing import Any
+
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -45,7 +47,7 @@ class ReadmeConfig:
     license: str | None = None
 
 
-def _try_read_pyproject(root: Path) -> dict:
+def _try_read_pyproject(root: Path) -> dict[str, Any]:
     p = root / "pyproject.toml"
     if p.exists():
         try:
@@ -55,7 +57,7 @@ def _try_read_pyproject(root: Path) -> dict:
     return {}
 
 
-def _resolve_license(cfg: ReadmeConfig, pyproject: dict) -> str:
+def _resolve_license(cfg: ReadmeConfig, pyproject: dict[str, Any]) -> str:
     if cfg.license is not None:
         return cfg.license
     # PEP 639: [project.license] = "MIT"
@@ -65,7 +67,10 @@ def _resolve_license(cfg: ReadmeConfig, pyproject: dict) -> str:
     if isinstance(lic, str):
         return lic
     if isinstance(lic, dict):
-        return lic.get("text", "MIT").split()[0]  # "MIT License" → "MIT"
+        text = lic.get("text", "MIT")
+        if isinstance(text, str):
+            return text.split()[0]  # "MIT License" → "MIT"
+        return "MIT"
     return "MIT"
 
 

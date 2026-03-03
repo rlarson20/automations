@@ -42,16 +42,12 @@ def die(msg: str) -> None:
 def main(
     name: str = typer.Argument(..., help="Project directory / package name"),
     private: bool = typer.Option(True, help="Create GitHub repo as private"),
-    no_github: bool = typer.Option(
-        False, "--no-github", help="Skip GitHub repo creation"
-    ),
+    no_github: bool = typer.Option(False, "--no-github", help="Skip GitHub repo creation"),
     description: str = typer.Option("", "--desc", help="Repo description"),
 ) -> None:
     root = Path(name)
     if root.exists():
-        ok = questionary.confirm(
-            f"'{root}' already exists. Continue?", default=False
-        ).ask()
+        ok = questionary.confirm(f"'{root}' already exists. Continue?", default=False).ask()
         if not ok:
             die("aborted")
     else:
@@ -144,14 +140,10 @@ def main(
         console.print("  [green]✓[/] github repo created and pushed")
 
     # --- done ---
-    cmds = (
-        f"  [dim]cd[/] {root}\n  [bold]uv run pytest[/]\n  [bold]uv run ruff check .[/]"
-    )
+    cmds = f"  [dim]cd[/] {root}\n  [bold]uv run pytest[/]\n  [bold]uv run ruff check .[/]"
     if not no_github:
         cmds += "\n  [bold]gh repo view --web[/]"
-    console.print(
-        Panel(f"[bold green]done.[/]\n\n{cmds}", title="next steps", expand=False)
-    )
+    console.print(Panel(f"[bold green]done.[/]\n\n{cmds}", title="next steps", expand=False))
 
 
 if __name__ == "__main__":

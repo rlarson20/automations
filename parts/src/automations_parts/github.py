@@ -13,10 +13,15 @@ def create_repo(
 ) -> None:
     """Create a GitHub repo and push. Assumes git is already initialized + committed."""
     cmd = [
-        "gh", "repo", "create", name,
+        "gh",
+        "repo",
+        "create",
+        name,
         "--private" if private else "--public",
-        "--source", ".",
-        "--remote", "origin",
+        "--source",
+        ".",
+        "--remote",
+        "origin",
         "--push",
     ]
     if description:

@@ -67,15 +67,11 @@ def main(
     name: str = typer.Argument(..., help="Script name (without .py)"),
     description: str = typer.Option("", "--desc", help="One-line script description"),
     private: bool = typer.Option(True, help="Create GitHub repo as private"),
-    no_github: bool = typer.Option(
-        False, "--no-github", help="Skip GitHub repo creation"
-    ),
+    no_github: bool = typer.Option(False, "--no-github", help="Skip GitHub repo creation"),
 ) -> None:
     root = Path(name)
     if root.exists():
-        ok = questionary.confirm(
-            f"'{root}' already exists. Continue?", default=False
-        ).ask()
+        ok = questionary.confirm(f"'{root}' already exists. Continue?", default=False).ask()
         if not ok:
             die("aborted")
     else:

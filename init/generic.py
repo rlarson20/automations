@@ -81,14 +81,10 @@ def die(msg: str) -> None:
 @app.command()
 def main(
     name: str = typer.Argument(..., help="Project directory name"),
-    lang: str = typer.Option(
-        "other", "--lang", help=f"Language hint ({', '.join(KNOWN_LANGS)})"
-    ),
+    lang: str = typer.Option("other", "--lang", help=f"Language hint ({', '.join(KNOWN_LANGS)})"),
     description: str = typer.Option("", "--desc", help="Short project description"),
     private: bool = typer.Option(True, help="Create GitHub repo as private"),
-    no_github: bool = typer.Option(
-        False, "--no-github", help="Skip GitHub repo creation"
-    ),
+    no_github: bool = typer.Option(False, "--no-github", help="Skip GitHub repo creation"),
     no_commit: bool = typer.Option(
         False,
         "--no-commit",
@@ -101,9 +97,7 @@ def main(
 
     root = Path(name)
     if root.exists():
-        ok = questionary.confirm(
-            f"'{root}' already exists. Continue?", default=False
-        ).ask()
+        ok = questionary.confirm(f"'{root}' already exists. Continue?", default=False).ask()
         if not ok:
             die("aborted")
     else:
@@ -139,9 +133,7 @@ def main(
         git.initial_commit(root)
         console.print("  [green]✓[/] initial commit")
     else:
-        console.print(
-            "  [yellow]–[/] skipped initial commit (run your lang toolchain first)"
-        )
+        console.print("  [yellow]–[/] skipped initial commit (run your lang toolchain first)")
 
     # GitHub
     if not no_github:
@@ -150,21 +142,14 @@ def main(
 
     # Next steps
     hint = LANG_INIT_HINTS.get(lang)
-    toolchain_line = (
-        f"\n  [bold]{hint}[/]    [dim]# init language toolchain[/]" if hint else ""
-    )
+    toolchain_line = f"\n  [bold]{hint}[/]    [dim]# init language toolchain[/]" if hint else ""
     commit_reminder = (
-        "\n  [bold]git add -A && git commit -m 'chore: lang init'[/]"
-        if no_commit
-        else ""
+        "\n  [bold]git add -A && git commit -m 'chore: lang init'[/]" if no_commit else ""
     )
 
     console.print(
         Panel(
-            f"[bold green]done.[/]\n\n"
-            f"  [dim]cd[/] {root}"
-            f"{toolchain_line}"
-            f"{commit_reminder}",
+            f"[bold green]done.[/]\n\n  [dim]cd[/] {root}{toolchain_line}{commit_reminder}",
             title="next steps",
             expand=False,
         )

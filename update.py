@@ -52,12 +52,8 @@ def run_autoupdate(config: Path) -> tuple[bool, str]:
 
 @app.command()
 def main(
-    root: Path = typer.Option(
-        Path("."), "--root", help="Directory to search for configs"
-    ),
-    yes: bool = typer.Option(
-        False, "--yes", "-y", help="Skip per-project confirmation"
-    ),
+    root: Path = typer.Option(Path("."), "--root", help="Directory to search for configs"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip per-project confirmation"),
 ) -> None:
     root = root.expanduser().resolve()
     if not root.is_dir():
@@ -86,8 +82,7 @@ def main(
         selected = questionary.checkbox(
             "Select projects to autoupdate (enter to confirm all / deselect to skip):",
             choices=[
-                questionary.Choice(title=ch.title, value=ch.value, checked=True)
-                for ch in choices
+                questionary.Choice(title=ch.title, value=ch.value, checked=True) for ch in choices
             ],
         ).ask()
 
@@ -106,11 +101,7 @@ def main(
         ok, output = run_autoupdate(config)
         if ok:
             # pre-commit autoupdate prints lines like "Updating X from Y to Z"
-            updates = [
-                l.strip()
-                for l in output.splitlines()
-                if l.strip().startswith("Updating")
-            ]
+            updates = [l.strip() for l in output.splitlines() if l.strip().startswith("Updating")]
             if updates:
                 console.print(f"[green]✓[/] {len(updates)} update(s)")
                 for u in updates:
@@ -122,9 +113,7 @@ def main(
             console.print("[red]failed[/]")
             console.print(output)
 
-    console.print(
-        f"\n[bold green]done.[/] updated {ok_count}/{len(selected)} project(s)"
-    )
+    console.print(f"\n[bold green]done.[/] updated {ok_count}/{len(selected)} project(s)")
 
 
 if __name__ == "__main__":

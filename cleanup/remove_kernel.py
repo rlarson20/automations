@@ -31,7 +31,7 @@ console = Console()
 # Standard user-writable kernel locations (system-wide paths are intentionally excluded)
 KERNEL_DIRS = [
     Path.home() / ".local" / "share" / "jupyter" / "kernels",  # Linux + macOS (pip)
-    Path.home() / "Library" / "Jupyter" / "kernels",            # macOS (some installers)
+    Path.home() / "Library" / "Jupyter" / "kernels",  # macOS (some installers)
 ]
 
 
@@ -84,9 +84,7 @@ def print_summary(kernels: list[dict]) -> None:
 
     for k in kernels:
         venv_cell = (
-            f"[red]MISSING[/] {k['venv']}"
-            if k["missing_venv"]
-            else (k["venv"] or "[dim]—[/]")
+            f"[red]MISSING[/] {k['venv']}" if k["missing_venv"] else (k["venv"] or "[dim]—[/]")
         )
         table.add_row(k["name"], k["display_name"], venv_cell)
 
@@ -115,11 +113,7 @@ def main(
     # Build choices — pre-tick kernels with missing venvs as a hint, not a mandate
     choices = [
         questionary.Choice(
-            title=(
-                f"{k['name']}  [stale — venv missing]"
-                if k["missing_venv"]
-                else k["name"]
-            ),
+            title=(f"{k['name']}  [stale — venv missing]" if k["missing_venv"] else k["name"]),
             value=k["name"],
             checked=k["missing_venv"],
         )

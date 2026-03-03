@@ -254,17 +254,11 @@ def apply_serious(root: Path, flavor: Flavor, use_npm: bool) -> None:
 @app.command()
 def main(
     name: str = typer.Argument(..., help="Project directory name"),
-    flavor: Flavor = typer.Option(
-        Flavor.vite, "--flavor", help="vite | next | astro | vanilla-ts"
-    ),
-    serious: bool = typer.Option(
-        False, "--serious", help="Add ESLint, Prettier, strict tsconfig"
-    ),
+    flavor: Flavor = typer.Option(Flavor.vite, "--flavor", help="vite | next | astro | vanilla-ts"),
+    serious: bool = typer.Option(False, "--serious", help="Add ESLint, Prettier, strict tsconfig"),
     npm: bool = typer.Option(False, "--npm", help="Use npm instead of bun"),
     private: bool = typer.Option(True, help="Create GitHub repo as private"),
-    no_github: bool = typer.Option(
-        False, "--no-github", help="Skip GitHub repo creation"
-    ),
+    no_github: bool = typer.Option(False, "--no-github", help="Skip GitHub repo creation"),
     description: str = typer.Option("", "--desc", help="Short project description"),
 ) -> None:
     if not npm and not shutil.which("bun"):
@@ -273,18 +267,14 @@ def main(
 
     root = Path(name).resolve()
     if root.exists():
-        ok = questionary.confirm(
-            f"'{root}' already exists. Continue?", default=False
-        ).ask()
+        ok = questionary.confirm(f"'{root}' already exists. Continue?", default=False).ask()
         if not ok:
             die("aborted")
     else:
         root.mkdir()
 
     mode = "serious" if serious else "throwaway"
-    console.print(
-        f"\n[bold]scaffolding[/] [cyan]{name}[/] ({flavor}, {pkg(npm)}, {mode})\n"
-    )
+    console.print(f"\n[bold]scaffolding[/] [cyan]{name}[/] ({flavor}, {pkg(npm)}, {mode})\n")
 
     match flavor:
         case Flavor.vite:
@@ -331,9 +321,7 @@ def main(
     }
     console.print(
         Panel(
-            f"[bold green]done.[/]\n\n"
-            f"  [dim]cd[/] {name}\n"
-            f"  [bold]{dev_cmd[flavor]}[/]",
+            f"[bold green]done.[/]\n\n  [dim]cd[/] {name}\n  [bold]{dev_cmd[flavor]}[/]",
             title="next steps",
             expand=False,
         )
