@@ -34,11 +34,10 @@ from pathlib import Path
 
 import questionary
 import typer
-from rich.console import Console
-from rich.panel import Panel
-
 from automations_parts import git, github, precommit
 from automations_parts.readme import ReadmeConfig, write_readme
+from rich.console import Console
+from rich.panel import Panel
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -50,6 +49,8 @@ class Flavor(StrEnum):
     astro = "astro"
     vanilla_ts = "vanilla-ts"
 
+
+_DEFAULT_FLAVOR = typer.Option(Flavor.vite, "--flavor", help="vite | next | astro | vanilla-ts")
 
 ESLINT_CONFIG = """\
 import js from "@eslint/js";
@@ -153,7 +154,7 @@ def scaffold_vite(root: Path, name: str, use_npm: bool) -> None:
         run(["bun", "install"], cwd=root)
     else:
         run(
-            ["npm", "create", "vite@latest", ".", "--", "--template", "react-ts"],
+            ["npm", "create", "vite@latest", ".", "--", "--template", "react-ts", "--yes"],
             cwd=root,
         )
         run(["npm", "install"], cwd=root)
@@ -254,7 +255,7 @@ def apply_serious(root: Path, flavor: Flavor, use_npm: bool) -> None:
 @app.command()
 def main(
     name: str = typer.Argument(..., help="Project directory name"),
-    flavor: Flavor = typer.Option(Flavor.vite, "--flavor", help="vite | next | astro | vanilla-ts"),
+    flavor: Flavor = _DEFAULT_FLAVOR,
     serious: bool = typer.Option(False, "--serious", help="Add ESLint, Prettier, strict tsconfig"),
     npm: bool = typer.Option(False, "--npm", help="Use npm instead of bun"),
     private: bool = typer.Option(True, help="Create GitHub repo as private"),
