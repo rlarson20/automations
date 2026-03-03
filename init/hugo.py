@@ -23,7 +23,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.tree import Tree
 
-from parts import git, github, precommit
+from automations_parts import git, github, precommit
 
 console = Console()
 
@@ -40,7 +40,9 @@ def write(path: Path, content: str, tree: Tree | None = None) -> None:
         tree.add(f"[green]{path}[/]")
 
 
-def scaffold(root: Path, site_title: str, base_url: str, author: str, tree: Tree) -> None:
+def scaffold(
+    root: Path, site_title: str, base_url: str, author: str, tree: Tree
+) -> None:
     write(
         root / "layouts/_default/baseof.html",
         f"""\
@@ -153,19 +155,27 @@ def validate_nonempty(val: str) -> bool | str:
 def main() -> None:
     console.print(Panel("[bold]Hugo site scaffolder[/]", expand=False))
 
-    site_name = questionary.text("Site directory name:", default="hugo-site", validate=validate_nonempty).ask()
+    site_name = questionary.text(
+        "Site directory name:", default="hugo-site", validate=validate_nonempty
+    ).ask()
     if site_name is None:
         die("aborted")
 
-    site_title = questionary.text("Site title:", default="My Hugo Site", validate=validate_nonempty).ask()
+    site_title = questionary.text(
+        "Site title:", default="My Hugo Site", validate=validate_nonempty
+    ).ask()
     if site_title is None:
         die("aborted")
 
-    base_url = questionary.text("Base URL:", default="https://example.com/", validate=validate_url).ask()
+    base_url = questionary.text(
+        "Base URL:", default="https://example.com/", validate=validate_url
+    ).ask()
     if base_url is None:
         die("aborted")
 
-    author = questionary.text("Author / footer text:", default="Me", validate=validate_nonempty).ask()
+    author = questionary.text(
+        "Author / footer text:", default="Me", validate=validate_nonempty
+    ).ask()
     if author is None:
         die("aborted")
 
@@ -176,7 +186,9 @@ def main() -> None:
 
     root = Path(site_name)
     if root.exists():
-        ok = questionary.confirm(f"'{root}' already exists. Continue anyway?", default=False).ask()
+        ok = questionary.confirm(
+            f"'{root}' already exists. Continue anyway?", default=False
+        ).ask()
         if not ok:
             die("aborted")
     else:

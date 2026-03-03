@@ -6,7 +6,7 @@ Personal project scaffolding and automation scripts.
 
 ```
 init/          # uv run-able PEP 723 init scripts
-parts/         # shared library (scripts-parts local package)
+parts/         # shared library (automations-parts local package)
 templates/     # static config templates (if needed)
 ```
 
