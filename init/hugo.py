@@ -4,7 +4,7 @@
 # dependencies = [
 #   "questionary>=2.0",
 #   "rich>=13.0",
-#   "scripts-parts",
+#   "automations-parts",
 # ]
 #
 # [tool.uv.sources]
