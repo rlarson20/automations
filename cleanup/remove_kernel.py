@@ -4,6 +4,7 @@
 # dependencies = [
 #   "questionary>=2.0",
 #   "rich>=13.0",
+#   "typer>=0.12",
 # ]
 # ///
 """Interactively remove Jupyter kernels from user kernel directories.
