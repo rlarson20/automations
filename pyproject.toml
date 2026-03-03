@@ -8,18 +8,21 @@ dependencies = []
 [dependency-groups]
 lint = ["ruff>=0.9.0", "mypy>=1.14.0"]
 test = ["pytest>=8.0", "pytest-mock>=3.14"]
-dev = [
-  { include-group = "lint" },
-  { include-group = "test" },
-]
+dev = [{ include-group = "lint" }, { include-group = "test" }]
 # Dependencies needed for automations-parts package
 parts = ["rich>=13.0", "tomli-w>=1.0"]
 
 [tool.uv.sources]
 automations-parts = { path = "parts", editable = true }
 
+[tool.uv.workspace]
+members = ["test-nb", "test-lib"]
+
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.mypy]
 python_version = "3.12"

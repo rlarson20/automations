@@ -27,19 +27,41 @@ from pathlib import Path
 
 import questionary
 import typer
-from rich.console import Console
-from rich.panel import Panel
-
 from automations_parts import git, github, precommit, toml_utils
 from automations_parts.readme import ReadmeConfig, write_readme
+from rich.console import Console
+from rich.panel import Panel
 
 app = typer.Typer(add_completion=False)
 console = Console()
 
 
+def _check_not_in_uv_workspace() -> None:
+    """Abort if cwd is inside a uv workspace — would pollute parent lock."""
+    import tomllib
+    from pathlib import Path
+
+    for parent in Path.cwd().parents:
+        p = parent / "pyproject.toml"
+        if p.exists():
+            try:
+                data = tomllib.loads(p.read_text())
+                if "workspace" in data.get("tool", {}).get("uv", {}):
+                    console.print(
+                        f"[bold red]error:[/] {parent} is a uv workspace root. "
+                        "Run init scripts from outside it."
+                    )
+                    raise SystemExit(1)
+            except tomllib.TOMLDecodeError:
+                pass
+
+
 class Flavor(StrEnum):
     jupyter = "jupyter"
     marimo = "marimo"
+
+
+_DEFAULT_FLAVOR = typer.Option(Flavor.jupyter, "--flavor", help="jupyter or marimo")
 
 
 JUPYTER_STARTER = """\
@@ -162,12 +184,13 @@ def do_launch(root: Path, flavor: Flavor, notebook_file: Path) -> None:
 @app.command()
 def main(
     name: str = typer.Argument(..., help="Project directory name"),
-    flavor: Flavor = typer.Option(Flavor.jupyter, "--flavor", help="jupyter or marimo"),
+    flavor: Flavor = _DEFAULT_FLAVOR,
     description: str = typer.Option("", "--desc", help="Short project description"),
     private: bool = typer.Option(True, help="Create GitHub repo as private"),
     no_github: bool = typer.Option(False, "--no-github", help="Skip GitHub repo creation"),
     no_launch: bool = typer.Option(False, "--no-launch", help="Skip launching the notebook server"),
 ) -> None:
+    _check_not_in_uv_workspace()
     root = Path(name).resolve()
     if root.exists():
         ok = questionary.confirm(f"'{name}' already exists. Continue?", default=False).ask()
