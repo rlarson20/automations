@@ -38,6 +38,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from automations_parts import git, github, precommit
+from automations_parts.readme import ReadmeConfig, write_readme
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -297,6 +298,15 @@ def main(
 
     if serious:
         apply_serious(root, flavor, npm)
+
+    write_readme(
+        root,
+        ReadmeConfig(
+            name=name,
+            description=description or f"TODO: describe {name}.",
+            usage_commands=[dev_cmd[flavor]],
+        ),
+    )
 
     # pre-commit: js hooks only for --serious (requires eslint/prettier installed)
     precommit.write_config(root, stacks=["js"] if serious else [])

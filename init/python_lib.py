@@ -27,6 +27,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from automations_parts import git, github, precommit, toml_utils
+from automations_parts.readme import ReadmeConfig, write_readme
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -110,6 +111,17 @@ def main(
         f'"""Tests for {pkg}."""\n\n\ndef test_placeholder() -> None:\n    assert True\n'
     )
     console.print("  [green]✓[/] tests/ stub")
+    # README
+    write_readme(
+        root,
+        ReadmeConfig(
+            name=name,
+            description=description or f"TODO: describe {name}.",
+            install_commands=["uv sync --group dev"],
+            usage_commands=["uv run pytest", "uv run ruff check ."],
+        ),
+    )
+    console.print("  [green]✓[/] README.md")
 
     # --- pre-commit ---
     precommit.write_config(root, stacks=["python"])

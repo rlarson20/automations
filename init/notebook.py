@@ -31,6 +31,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from automations_parts import git, github, precommit, toml_utils
+from automations_parts.readme import ReadmeConfig, write_readme
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -204,6 +205,17 @@ def main(
         notebook_file = root / "notebooks" / "scratch.py"
         launch_hint = "uv run marimo edit notebooks/scratch.py"
         kernel_line = ""
+
+    write_readme(
+        root,
+        ReadmeConfig(
+            name=name,
+            description=description or f"TODO: describe {name}.",
+            install_commands=["uv sync --group dev"],
+            usage_commands=["uv run pytest", "uv run ruff check ."],
+        ),
+    )
+    console.print("  [green]✓[/] README.md")
 
     git.write_gitignore(root, extra=gitignore_extra)
     precommit.write_config(root, stacks=["python"])

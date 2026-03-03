@@ -33,6 +33,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from automations_parts import git, github, precommit
+from automations_parts.readme import ReadmeConfig, write_readme
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -70,21 +71,6 @@ LANG_INIT_HINTS: dict[str, str] = {
     "ocaml": "dune init project <name> .",
     "zig": "zig init",
 }
-
-
-def readme_stub(name: str, description: str, lang: str) -> str:
-    lang_display = lang.capitalize() if lang != "other" else ""
-    hint = LANG_INIT_HINTS.get(lang, "")
-    toolchain_section = f"\n## Setup\n\n```\n{hint}\n```\n" if hint else ""
-    return f"""\
-# {name}
-
-{description or "TODO: describe this project."}
-{toolchain_section}
-## License
-
-TODO
-"""
 
 
 def die(msg: str) -> None:
@@ -126,8 +112,15 @@ def main(
     console.print(f"\n[bold]scaffolding[/] [cyan]{name}[/] ({lang})\n")
 
     # README
-    (root / "README.md").write_text(readme_stub(name, description, lang))
-    console.print("  [green]✓[/] README.md")
+    hint = LANG_INIT_HINTS.get(lang, "")
+    write_readme(
+        root,
+        ReadmeConfig(
+            name=name,
+            description=description or "TODO: describe this project.",
+            sections=[("Setup", f"```\n{hint}\n```")] if hint else [],
+        ),
+    )
 
     # .gitignore: generic base + lang-specific extras
     git.write_gitignore(root, extra=LANG_GITIGNORE.get(lang, ""))

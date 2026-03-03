@@ -24,6 +24,7 @@ from rich.panel import Panel
 from rich.tree import Tree
 
 from automations_parts import git, github, precommit
+from automations_parts.readme import ReadmeConfig, write_readme
 
 console = Console()
 
@@ -200,6 +201,20 @@ def main() -> None:
     console.print(tree)
 
     init_hugo(root, site_title, base_url)
+    write_readme(
+        root,
+        ReadmeConfig(
+            name=site_name,
+            description="",
+            usage_commands=["hugo server", "hugo build"],
+            sections=[
+                (
+                    "Deploy",
+                    "Output in `./public/` — deploy anywhere that serves static files.",
+                )
+            ],
+        ),
+    )
 
     # git + pre-commit + github
     git.write_gitignore(root, extra="public/\nresources/_gen/\n.hugo_build.lock\n")

@@ -28,6 +28,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from automations_parts import git, github, precommit
+from automations_parts.readme import ReadmeConfig, write_readme
 
 app = typer.Typer(add_completion=False)
 console = Console()
@@ -94,9 +95,14 @@ def main(
     console.print(f"  [green]✓[/] {script_file}")
 
     # README
-    (root / "README.md").write_text(
-        f"# {name}\n\n{description or 'TODO: describe this script.'}\n\n"
-        f"## Usage\n\n```\nuv run {script_file}\n```\n"
+    write_readme(
+        root,
+        ReadmeConfig(
+            name=name,
+            description=description or f"TODO: describe {name}.",
+            usage_commands=[f"uv run {script_file}"],
+            sections=[("Add dependencies", f"`uv add --script {script_file} <pkg>`")],
+        ),
     )
     console.print("  [green]✓[/] README.md")
 
