@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # /// script
-# requires-python = ">=3.11"
+# requires-python = ">=3.12"
 # dependencies = [
 #   "questionary>=2.0",
 #   "rich>=13.0",
@@ -8,7 +8,7 @@
 # ]
 #
 # [tool.uv.sources]
-# scripts-parts = { path = "../parts" }
+# automations-parts = { path = "../parts" }
 # ///
 """Interactive scaffolder for a minimal Hugo site (based on simonwillison.net/til/hugo/basic)."""
 
