@@ -1,0 +1,10 @@
+[project]
+name = "automations-parts"
+version = "0.1.0"
+description = "Shared parts for rj's init scripts"
+requires-python = ">=3.12"
+dependencies = ["rich>=13.0"]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.10"]
+build-backend = "uv_build"

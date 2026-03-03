@@ -4,10 +4,13 @@
 # dependencies = [
 #   "questionary>=2.0",
 #   "rich>=13.0",
+#   "scripts-parts",
 # ]
+#
+# [tool.uv.sources]
+# scripts-parts = { path = "../parts" }
 # ///
 """Interactive scaffolder for a minimal Hugo site (based on simonwillison.net/til/hugo/basic)."""
-# [Claude convo](https://claude.ai/share/01d253bc-9c80-41a4-8260-30fddfe894cb)
 
 import shutil
 import subprocess
@@ -19,6 +22,8 @@ import questionary
 from rich.console import Console
 from rich.panel import Panel
 from rich.tree import Tree
+
+from parts import git, github, precommit
 
 console = Console()
 
@@ -35,10 +40,7 @@ def write(path: Path, content: str, tree: Tree | None = None) -> None:
         tree.add(f"[green]{path}[/]")
 
 
-def scaffold(
-    root: Path, site_title: str, base_url: str, author: str, tree: Tree
-) -> None:
-    # layouts/_default/baseof.html
+def scaffold(root: Path, site_title: str, base_url: str, author: str, tree: Tree) -> None:
     write(
         root / "layouts/_default/baseof.html",
         f"""\
@@ -66,21 +68,18 @@ def scaffold(
         tree,
     )
 
-    # layouts/_default/single.html
     write(
         root / "layouts/_default/single.html",
         '{{ define "main" }}\n    {{ .Content }}\n{{ end }}\n',
         tree,
     )
 
-    # layouts/index.html
     write(
         root / "layouts/index.html",
         '{{ define "main" }}\n    {{ .Content }}\n{{ end }}\n',
         tree,
     )
 
-    # content/_index.md
     write(
         root / "content/_index.md",
         f"""\
@@ -94,7 +93,6 @@ This is the homepage. Edit `content/_index.md` to change this content.
         tree,
     )
 
-    # content/about.md
     write(
         root / "content/about.md",
         f"""\
@@ -128,7 +126,6 @@ def init_hugo(root: Path, site_title: str, base_url: str) -> None:
         console.print(result.stderr)
         die("hugo new site failed")
 
-    # Patch hugo.toml
     toml_path = root / "hugo.toml"
     if toml_path.exists():
         toml_path.write_text(
@@ -156,43 +153,30 @@ def validate_nonempty(val: str) -> bool | str:
 def main() -> None:
     console.print(Panel("[bold]Hugo site scaffolder[/]", expand=False))
 
-    site_name = questionary.text(
-        "Site directory name:",
-        default="hugo-site",
-        validate=validate_nonempty,
-    ).ask()
+    site_name = questionary.text("Site directory name:", default="hugo-site", validate=validate_nonempty).ask()
     if site_name is None:
         die("aborted")
 
-    site_title = questionary.text(
-        "Site title:",
-        default="My Hugo Site",
-        validate=validate_nonempty,
-    ).ask()
+    site_title = questionary.text("Site title:", default="My Hugo Site", validate=validate_nonempty).ask()
     if site_title is None:
         die("aborted")
 
-    base_url = questionary.text(
-        "Base URL:",
-        default="https://example.com/",
-        validate=validate_url,
-    ).ask()
+    base_url = questionary.text("Base URL:", default="https://example.com/", validate=validate_url).ask()
     if base_url is None:
         die("aborted")
 
-    author = questionary.text(
-        "Author / footer text:",
-        default="Me",
-        validate=validate_nonempty,
-    ).ask()
+    author = questionary.text("Author / footer text:", default="Me", validate=validate_nonempty).ask()
     if author is None:
         die("aborted")
 
+    create_gh = questionary.confirm("Create GitHub repo?", default=True).ask()
+    private = False
+    if create_gh:
+        private = questionary.confirm("Private repo?", default=True).ask()
+
     root = Path(site_name)
     if root.exists():
-        ok = questionary.confirm(
-            f"'{root}' already exists. Continue anyway?", default=False
-        ).ask()
+        ok = questionary.confirm(f"'{root}' already exists. Continue anyway?", default=False).ask()
         if not ok:
             die("aborted")
     else:
@@ -204,6 +188,18 @@ def main() -> None:
     console.print(tree)
 
     init_hugo(root, site_title, base_url)
+
+    # git + pre-commit + github
+    git.write_gitignore(root, extra="public/\nresources/_gen/\n.hugo_build.lock\n")
+    precommit.write_config(root, stacks=[])  # generic only for Hugo
+    git.git_init(root)
+    precommit.install(root)
+    git.initial_commit(root)
+    console.print("  [green]✓[/] git init + pre-commit + initial commit")
+
+    if create_gh:
+        github.create_repo(root, name=site_name, private=private)
+        console.print("  [green]✓[/] github repo created and pushed")
 
     console.print(
         Panel(
