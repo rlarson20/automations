@@ -183,7 +183,7 @@ def scaffold_next(root: Path, name: str, use_npm: bool, serious: bool) -> None:
 
 
 def scaffold_astro(root: Path, name: str, use_npm: bool) -> None:
-    pm = pkg(use_npm)
+    # pm = pkg(use_npm)
     run(
         [
             "bun" if not use_npm else "npx",
@@ -289,15 +289,6 @@ def main(
     if serious:
         apply_serious(root, flavor, npm)
 
-    write_readme(
-        root,
-        ReadmeConfig(
-            name=name,
-            description=description or f"TODO: describe {name}.",
-            usage_commands=[dev_cmd[flavor]],
-        ),
-    )
-
     # pre-commit: js hooks only for --serious (requires eslint/prettier installed)
     precommit.write_config(root, stacks=["js"] if serious else [])
     git.write_gitignore(root, extra="node_modules/\ndist/\n.next/\n.astro/\n.vercel/\n")
@@ -319,6 +310,15 @@ def main(
         "astro": f"{pm} run dev",
         "vanilla-ts": f"{pm} run dev",
     }
+
+    write_readme(
+        root,
+        ReadmeConfig(
+            name=name,
+            description=description or f"TODO: describe {name}.",
+            usage_commands=[dev_cmd[flavor]],
+        ),
+    )
     console.print(
         Panel(
             f"[bold green]done.[/]\n\n  [dim]cd[/] {name}\n  [bold]{dev_cmd[flavor]}[/]",
