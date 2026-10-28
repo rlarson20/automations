@@ -37,6 +37,7 @@ import typer
 from automations_parts import git, github, precommit
 from automations_parts.readme import ReadmeConfig, write_readme
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
 app = typer.Typer(add_completion=False)
@@ -138,8 +139,12 @@ def die(msg: str) -> None:
 def run(cmd: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
     result = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True)
     if check and result.returncode != 0:
-        console.print(result.stderr)
-        die(f"command failed: {' '.join(cmd)}")
+        # Some scaffolders (e.g. create-astro) report errors on stdout, not stderr.
+        # Print raw: child output can contain [brackets] that Rich would eat as markup.
+        for out in (result.stdout, result.stderr):
+            if out.strip():
+                console.print(out.rstrip(), markup=False, highlight=False)
+        die(f"command failed: {escape(' '.join(cmd))}")
     return result
 
 
