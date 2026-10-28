@@ -136,7 +136,10 @@ def die(msg: str) -> None:
 
 
 def run(cmd: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess:
-    result = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True)
+    # stdout is captured, so any prompt a child prints is invisible. Detach stdin so
+    # scaffolders see a non-TTY and fall back to non-interactive defaults (or fail
+    # fast on EOF) instead of blocking forever on a hidden prompt.
+    result = subprocess.run(cmd, cwd=cwd, text=True, capture_output=True, stdin=subprocess.DEVNULL)
     if check and result.returncode != 0:
         console.print(result.stderr)
         die(f"command failed: {' '.join(cmd)}")
@@ -147,16 +150,19 @@ def pkg(use_npm: bool) -> str:
     return "npm" if use_npm else "bun"
 
 
+# create-vite prompts for linter + "install and start now?" whenever stdin is a TTY;
+# --no-immediate also keeps it from launching a never-exiting dev server.
+VITE_ARGS = [".", "--template", "react-ts", "--no-interactive", "--no-immediate"]
+
+
 def scaffold_vite(root: Path, name: str, use_npm: bool) -> None:
     pm = pkg(use_npm)
     if pm == "bun":
-        run(["bun", "create", "vite@latest", ".", "--template", "react-ts"], cwd=root)
+        run(["bun", "create", "vite@latest", *VITE_ARGS], cwd=root)
         run(["bun", "install"], cwd=root)
     else:
-        run(
-            ["npm", "create", "vite@latest", ".", "--", "--template", "react-ts", "--yes"],
-            cwd=root,
-        )
+        # npm's --yes (skip "Ok to proceed?") must precede `--`; after it, it goes to create-vite
+        run(["npm", "create", "--yes", "vite@latest", "--", *VITE_ARGS], cwd=root)
         run(["npm", "install"], cwd=root)
     console.print("  [green]✓[/] vite (react-ts)")
 

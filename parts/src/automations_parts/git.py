@@ -1,9 +1,9 @@
 """Git operations."""
 
+import subprocess
 from pathlib import Path
 
 from .run import run
-
 
 DEFAULT_GITIGNORE = """\
 # Python
@@ -44,4 +44,9 @@ def write_gitignore(cwd: Path, extra: str = "") -> None:
 
 def initial_commit(cwd: Path, message: str = "chore: initial scaffold") -> None:
     run(["git", "add", "-A"], cwd=cwd)
-    run(["git", "commit", "-m", message], cwd=cwd)
+    # pre-commit fixers (e.g. end-of-file-fixer on template SVGs) rewrite files and fail
+    # the first attempt; stage their fixes and retry once. A second failure is real.
+    first = subprocess.run(["git", "commit", "-m", message], cwd=cwd, capture_output=True)
+    if first.returncode != 0:
+        run(["git", "add", "-A"], cwd=cwd)
+        run(["git", "commit", "-m", message], cwd=cwd)

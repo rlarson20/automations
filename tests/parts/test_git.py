@@ -1,10 +1,12 @@
 """Tests for git module."""
 
+import subprocess
 from pathlib import Path
-
 
 from automations_parts.git import (
     DEFAULT_GITIGNORE,
+    git_init,
+    initial_commit,
     write_gitignore,
 )
 
@@ -142,3 +144,26 @@ def test_write_gitignore_overwrites_existing(tmp_project: Path) -> None:
     assert "old content" not in content
     assert "__pycache__/" in content  # from default
     assert "new/" in content  # from extra
+
+
+def test_initial_commit_retries_after_fixer_hook(tmp_project: Path) -> None:
+    """A hook that rewrites files and fails (like end-of-file-fixer) must not abort the scaffold."""
+    git_init(tmp_project)
+    for key, val in (("user.name", "t"), ("user.email", "t@t")):
+        subprocess.run(["git", "config", key, val], cwd=tmp_project, check=True)
+    (tmp_project / "icon.svg").write_text("<svg/>")  # no trailing newline
+    hook = tmp_project / ".git" / "hooks" / "pre-commit"
+    hook.write_text(
+        '#!/bin/sh\n[ -z "$(tail -c1 icon.svg)" ] && exit 0\necho >> icon.svg\nexit 1\n'
+    )
+    hook.chmod(0o755)
+
+    initial_commit(tmp_project)
+
+    def git_out(*args: str) -> str:
+        return subprocess.run(
+            ["git", *args], cwd=tmp_project, capture_output=True, text=True, check=True
+        ).stdout
+
+    assert len(git_out("log", "--oneline").splitlines()) == 1
+    assert git_out("status", "--porcelain") == ""
