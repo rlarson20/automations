@@ -9,7 +9,7 @@
 # ]
 #
 # [tool.uv.sources]
-# automations-parts = { path = "../parts" }
+# automations-parts = { path = "../parts", editable = true }
 # ///
 """Scaffold a standalone PEP 723 Python script with git + gh + pre-commit.
 

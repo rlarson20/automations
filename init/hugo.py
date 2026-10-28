@@ -8,7 +8,7 @@
 # ]
 #
 # [tool.uv.sources]
-# automations-parts = { path = "../parts" }
+# automations-parts = { path = "../parts", editable = true }
 # ///
 """Interactive scaffolder for a minimal Hugo site (based on simonwillison.net/til/hugo/basic)."""
 
@@ -19,12 +19,11 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import questionary
+from automations_parts import git, github, precommit
+from automations_parts.readme import ReadmeConfig, write_readme
 from rich.console import Console
 from rich.panel import Panel
 from rich.tree import Tree
-
-from automations_parts import git, github, precommit
-from automations_parts.readme import ReadmeConfig, write_readme
 
 console = Console()
 

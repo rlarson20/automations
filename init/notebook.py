@@ -9,7 +9,7 @@
 # ]
 #
 # [tool.uv.sources]
-# automations-parts = { path = "../parts" }
+# automations-parts = { path = "../parts", editable = true }
 # ///
 """Scaffold a uv-managed notebook project with a project-scoped kernel.
 
