@@ -9,7 +9,7 @@
 # ]
 #
 # [tool.uv.sources]
-# automations-parts = { path = "../parts" }
+# automations-parts = { path = "../parts", editable = true }
 # ///
 """Language-agnostic project scaffolder: git + gh + pre-commit + README stub.
 
@@ -29,11 +29,10 @@ from pathlib import Path
 
 import questionary
 import typer
-from rich.console import Console
-from rich.panel import Panel
-
 from automations_parts import git, github, precommit
 from automations_parts.readme import ReadmeConfig, write_readme
+from rich.console import Console
+from rich.panel import Panel
 
 app = typer.Typer(add_completion=False)
 console = Console()

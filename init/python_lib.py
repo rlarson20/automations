@@ -10,7 +10,7 @@
 # ]
 #
 # [tool.uv.sources]
-# automations-parts = { path = "../parts" }
+# automations-parts = { path = "../parts", editable = true }
 # ///
 """Scaffold a uv Python library with sane defaults.
 

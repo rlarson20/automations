@@ -9,7 +9,7 @@
 # ]
 #
 # [tool.uv.sources]
-# automations-parts = { path = "../parts" }
+# automations-parts = { path = "../parts", editable = true }
 # ///
 """Scaffold a JS/TS project with git + gh + pre-commit.
 
