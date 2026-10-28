@@ -297,13 +297,6 @@ def main(
     precommit.install(root)
     console.print("  [green]✓[/] git init + pre-commit install")
 
-    git.initial_commit(root)
-    console.print("  [green]✓[/] initial commit")
-
-    if not no_github:
-        github.create_repo(root, name=name, private=private, description=description)
-        console.print("  [green]✓[/] github repo created and pushed")
-
     pm = pkg(npm)
     dev_cmd = {
         "vite": f"{pm} run dev",
@@ -320,6 +313,14 @@ def main(
             usage_commands=[dev_cmd[flavor]],
         ),
     )
+
+    git.initial_commit(root)
+    console.print("  [green]✓[/] initial commit")
+
+    if not no_github:
+        github.create_repo(root, name=name, private=private, description=description)
+        console.print("  [green]✓[/] github repo created and pushed")
+
     console.print(
         Panel(
             f"[bold green]done.[/]\n\n  [dim]cd[/] {name}\n  [bold]{dev_cmd[flavor]}[/]",
