@@ -143,6 +143,12 @@ def run(cmd: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedPr
     return result
 
 
+def pkg_exec(use_npm: bool) -> list[str]:
+    """Run-a-package-binary prefix. `bun <pkg>` looks for a local script, so it must be bunx;
+    npx needs --yes or it blocks on an "Ok to proceed?" install prompt."""
+    return ["npx", "--yes"] if use_npm else ["bunx"]
+
+
 def pkg(use_npm: bool) -> str:
     return "npm" if use_npm else "bun"
 
@@ -164,7 +170,7 @@ def scaffold_vite(root: Path, name: str, use_npm: bool) -> None:
 def scaffold_next(root: Path, name: str, use_npm: bool, serious: bool) -> None:
     # next-app creates its own git repo; we'll reinit after
     base_cmd = [
-        "bun" if not use_npm else "npx",
+        *pkg_exec(use_npm),
         "create-next-app@latest",
         ".",
         "--typescript",
@@ -173,7 +179,8 @@ def scaffold_next(root: Path, name: str, use_npm: bool, serious: bool) -> None:
         "--app",
         "--import-alias",
         "@/*",
-        "--no-git",
+        "--disable-git",
+        "--yes",  # take defaults for any prompt not covered by flags above
     ]
     if serious:
         base_cmd.append("--eslint")
@@ -184,17 +191,16 @@ def scaffold_next(root: Path, name: str, use_npm: bool, serious: bool) -> None:
 
 
 def scaffold_astro(root: Path, name: str, use_npm: bool) -> None:
-    # pm = pkg(use_npm)
+    # create-astro 5 dropped --typescript (templates ship strict tsconfig); install runs below
     run(
         [
-            "bun" if not use_npm else "npx",
+            *pkg_exec(use_npm),
             "create-astro@latest",
             ".",
             "--template",
             "minimal",
-            "--typescript",
-            "strict",
             "--no-git",
+            "--no-install",
             "--skip-houston",
             "--yes",
         ],
