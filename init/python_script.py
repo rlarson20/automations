@@ -53,14 +53,18 @@ def _check_not_in_uv_workspace() -> None:
                 pass
 
 
+# uv scans this file's raw text for PEP 723 blocks, so a literal fence at line start in the
+# template counts as a second block and uv refuses to run this script. Inject it via format().
+PEP723_FENCE = "# ///"
+
 SCRIPT_TEMPLATE = '''\
 #!/usr/bin/env python3
-# /// script
+{fence} script
 # requires-python = ">=3.12"
 # dependencies = [
 #   "rich>=13.0",
 # ]
-# ///
+{fence}
 """{description}"""
 
 from rich.console import Console
@@ -104,6 +108,7 @@ def main(
     # Script
     (root / script_file).write_text(
         SCRIPT_TEMPLATE.format(
+            fence=PEP723_FENCE,
             name=name,
             description=description or f"TODO: describe {name}",
         )
